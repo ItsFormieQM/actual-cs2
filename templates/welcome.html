@@ -1,2 +1,159 @@
-<h2>Welcome to ATM</h2>
-<a href="/register">Register</a> | <a href="/login">Login</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Prophecy</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<!-- Pixel font -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+body {
+    background-color: black;
+    color: white;
+    font-family: "Press Start 2P", monospace;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    border: 4px solid white;
+    padding: 40px;
+    width: 420px;
+    text-align: center;
+}
+
+h2 {
+    margin: 10px 0;
+}
+
+.menu {
+    margin-top: 30px;
+    text-align: left;
+}
+
+.option {
+    position: relative;
+    height: 24px;      
+    padding-left: 24px; 
+    margin: 8px 0;      
+}
+
+.heart {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    visibility: hidden;
+}
+
+.option.selected .heart {
+    visibility: visible;
+}
+</style>
+</head>
+
+<body onload="startMusic()">
+
+<div class="container">
+    <h2>WELCOME TO THE</h2>
+    <h2>UNDERGROUND ATM</h2>
+
+    <div class="menu">
+        <div class="option selected" data-link="/register">
+            <img class="heart" src="/static/sprites/redsoul.png">
+            REGISTER PAGE
+        </div>
+
+        <div class="option" data-link="/login">
+            <img class="heart" src="/static/sprites/redsoul.png">
+            LOGIN PAGE
+        </div>
+
+        <div class="option" data-link="/musicPage">
+            <img class="heart" src="/static/sprites/redsoul.png">
+            MUSIC CHANGER
+        </div>
+    </div>
+</div>
+
+<!-- MUSIC -->
+<audio id="bgm" loop>
+    <source src="/static/music/mus_date.ogg" type="audio/ogg">
+</audio>
+
+<script>
+const options = document.querySelectorAll(".option");
+let index = 0;
+
+// Create audio for move SFX
+const moveSFX = new Audio("/static/sfx/snd_menumove.wav");
+moveSFX.volume = 0.5; // adjust as needed
+
+// Create audio for confirm SFX
+const confirmSFX = new Audio("/static/sfx/snd_select.wav");
+confirmSFX.volume = 0.5; 
+
+// Background music
+const music = document.getElementById("bgm");
+music.volume = 0.3;
+
+// Play background music after first interaction if autoplay is blocked
+function startMusic() {
+    music.play().catch(()=>{}); // ignore errors
+    document.removeEventListener("click", startMusic);
+    document.removeEventListener("keydown", startMusic);
+}
+
+// Listen for first click or keypress to start music
+document.addEventListener("click", startMusic);
+document.addEventListener("keydown", startMusic);
+
+// Menu update function
+function updateSelection(playSound = false) {
+    options.forEach(o => o.classList.remove("selected"));
+    options[index].classList.add("selected");
+
+    if (playSound) {
+        moveSFX.currentTime = 0;
+        moveSFX.play().catch(()=>{});
+    }
+}
+
+// Handle key input
+document.addEventListener("keydown", e => {
+    if (e.key === "w" || e.key === "ArrowUp") {
+        index = (index - 1 + options.length) % options.length;
+        updateSelection(true); // play move SFX
+    }
+
+    if (e.key === "s" || e.key === "ArrowDown") {
+        index = (index + 1) % options.length;
+        updateSelection(true); // play move SFX
+    }
+
+    if (e.key === "z") { // confirm key
+        confirmSFX.currentTime = 0;
+        confirmSFX.play().catch(()=>{});
+
+        // Delay 500ms before redirect
+        setTimeout(() => {
+            window.location.href = options[index].dataset.link;
+        }, 500);
+    }
+});
+
+// Initial selection (no SFX)
+updateSelection();
+</script>
+
+</body>
+</html>
